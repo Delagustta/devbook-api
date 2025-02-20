@@ -4,38 +4,42 @@ import (
 	"api/internal/database"
 	"api/internal/model"
 	"api/internal/repository"
+	"api/internal/response"
 	"encoding/json"
-	"fmt"
 	"io"
-	"log"
 	"net/http"
 )
 
 // CreateUser insere um novo usuario no banco
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func CreateUser(httpWriter http.ResponseWriter, httpRequest *http.Request) {
 
-	request, err := io.ReadAll(r.Body)
+	requestBody, err := io.ReadAll(httpRequest.Body)
 	if err != nil {
-		log.Fatal(err)
+		response.Error(httpWriter, http.StatusUnprocessableEntity, err)
+		return
 	}
 
 	var user model.User
-	if err = json.Unmarshal(request, &user); err != nil {
-		log.Fatal(err)
+	if err = json.Unmarshal(requestBody, &user); err != nil {
+		response.Error(httpWriter, http.StatusBadRequest, err)
+		return
 	}
 
 	db, err := database.Connect()
 	if err != nil {
-		log.Fatal(err)
+		response.Error(httpWriter, http.StatusInternalServerError, err)
+		return
 	}
+	defer db.Close()
 
 	repository := repository.NewUserRepository(db)
-	id, err := repository.CreateUser(user)
+	user.ID, err = repository.CreateUser(user)
 	if err != nil {
-		log.Fatal(err)
+		response.Error(httpWriter, http.StatusInternalServerError, err)
+		return
 	}
 
-	w.Write([]byte(fmt.Sprintf("Usuario inserido com sucesso. ID: %d", id)))
+	response.JSON(httpWriter, http.StatusCreated, user)
 }
 
 // GetAllUsers busca todos os usuarios

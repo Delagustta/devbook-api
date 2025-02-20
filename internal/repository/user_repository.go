@@ -18,22 +18,14 @@ func NewUserRepository(db *sql.DB) *userRepository {
 // CreateUser insere um novo usuário no banco
 func (ur userRepository) CreateUser(user model.User) (uint64, error) {
 
-	statement, err := ur.db.Prepare("INSERT INTO users (name, nick, email, password) VALUES ($1, $2, $3, $4) RETURNING id")
+	var lastInsertedID uint64
+
+	query := `INSERT INTO users (name, nick, email, password) VALUES ($1, $2, $3, $4) RETURNING id`
+
+	err := ur.db.QueryRow(query, user.Name, user.Nick, user.Email, user.Password).Scan(&lastInsertedID)
 	if err != nil {
 		return 0, err
 	}
 
-	defer statement.Close()
-
-	result, err := statement.Exec(user.Name, user.Nick, user.Email, user.Password)
-	if err != nil {
-		return 0, err
-	}
-
-	lastInsertedID, err := result.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return uint64(lastInsertedID), nil
+	return lastInsertedID, nil
 }
