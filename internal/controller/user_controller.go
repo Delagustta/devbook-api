@@ -2,27 +2,27 @@ package controller
 
 import "net/http"
 
-// CriarUsuario insere um novo usuario no banco
-func CriarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Criando Usuario"))
+// CreateUser insere um novo usuario no banco
+func CreateUser(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Criando usuario"))
 }
 
-// BuscarTodosUsuarios busca todos os usuarios
-func BuscarTodosUsuarios(w http.ResponseWriter, r *http.Request) {
+// GetAllUsers busca todos os usuarios
+func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Buscando todos os usuarios"))
 }
 
-// BuscarUsuario busca um usuario
-func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("CBuscando um Usuario"))
+// FindUser busca um usuario
+func FindUser(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Buscando um usuario"))
 }
 
-// AtualizarUsuario atualiza um usuario
-func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Atualizando Usuario"))
+// UpdateUser atualiza um usuario
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Atualizando usuario"))
 }
 
-// DeletarUsuario deleta um usuario
-func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Deletando Usuario"))
+// DeleteUser deleta um usuario
+func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Deletando usuario"))
 }

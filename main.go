@@ -10,7 +10,7 @@ import (
 func main() {
 	fmt.Println("Rodando api!!")
 
-	router := router.Gerar()
+	router := router.Generate()
 
 	log.Fatal(http.ListenAndServe(":5000", router))
 }
