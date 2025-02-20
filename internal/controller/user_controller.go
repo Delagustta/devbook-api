@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 )
 
 // CreateUser insere um novo usuario no banco
@@ -47,9 +48,27 @@ func CreateUser(httpWriter http.ResponseWriter, httpRequest *http.Request) {
 	response.JSON(httpWriter, http.StatusCreated, user)
 }
 
-// GetAllUsers busca todos os usuarios
-func GetAllUsers(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Buscando todos os usuarios"))
+// FindUsersBy busca todos os usuarios que atendem o filtro de nome ou nick
+func FindUsersBy(w http.ResponseWriter, r *http.Request) {
+
+	nameOrNick := strings.ToLower(r.URL.Query().Get("user"))
+
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	defer db.Close()
+
+	repository := repository.NewUserRepository(db)
+	users, err := repository.FindBy(nameOrNick)
+	if err != nil {
+		response.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, users)
 }
 
 // FindUser busca um usuario

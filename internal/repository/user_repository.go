@@ -3,6 +3,7 @@ package repository
 import (
 	"api/internal/model"
 	"database/sql"
+	"fmt"
 )
 
 // userRepository é uma estrutura para manipulação de dados de usuários
@@ -28,4 +29,37 @@ func (ur userRepository) CreateUser(user model.User) (uint64, error) {
 	}
 
 	return lastInsertedID, nil
+}
+
+// FindBy busca todos os usuários que atendem o filtro de nome ou nick
+func (ur userRepository) FindBy(nameOrNick string) ([]model.User, error) {
+
+	nameOrNick = fmt.Sprintf("%%%s%%", nameOrNick)
+
+	query := `SELECT id, name, nick, email, created_at FROM users WHERE name ILIKE $1 OR nick ILIKE $1`
+
+	rows, err := ur.db.Query(query, nameOrNick)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var users []model.User
+
+	for rows.Next() {
+		var user model.User
+
+		if err = rows.Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreatedAt); err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
