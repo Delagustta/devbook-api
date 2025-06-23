@@ -8,7 +8,10 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 // CreateUser insere um novo usuario no banco
@@ -72,8 +75,32 @@ func FindUsersBy(w http.ResponseWriter, r *http.Request) {
 }
 
 // FindUser busca um usuario
-func FindUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Buscando um usuario"))
+func FindUser(httpWriter http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+
+	userID, err := strconv.ParseUint(parameters["id"], 10, 64)
+	if err != nil {
+		response.Error(httpWriter, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		response.Error(httpWriter, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repository := repository.NewUserRepository(db)
+
+	user, err := repository.FindByID(userID)
+	if err != nil {
+		response.Error(httpWriter, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(httpWriter, http.StatusOK, user)
+
 }
 
 // UpdateUser atualiza um usuario

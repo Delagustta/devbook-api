@@ -63,3 +63,26 @@ func (ur userRepository) FindBy(nameOrNick string) ([]model.User, error) {
 
 	return users, nil
 }
+
+// FindByID busca um usuário pelo ID
+func (ur userRepository) FindByID(id uint64) (model.User, error) {
+
+	query := `SELECT id, name, nick, email, created_at FROM users WHERE id = $1`
+
+	rows, err := ur.db.Query(query, id)
+	if err != nil {
+		return model.User{}, err
+	}
+
+	defer rows.Close()
+
+	var user model.User
+
+	if rows.Next() {
+		if err = rows.Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreatedAt); err != nil {
+			return model.User{}, err
+		}
+	}
+
+	return user, nil
+}
